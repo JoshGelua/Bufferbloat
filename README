@@ -1,0 +1,39 @@
+1. Why do you see a difference in webpage fetch times with short and large router buffers?
+
+  q20: Average: 0.660000
+  Standard Deviation: 0.356979
+
+  q100: Average: 1.296857
+  Standard Deviation: 0.756550
+
+  This is due to the buffer size. The packets sent between h1 and h2 fill the buffer,
+  and does not detect packet loss until it is full. Hence, times will inevitably be longer
+  with a bigger buffer size since the time it takes to fill these buffers are greatly multiplied.
+  Smaller buffers better allows TCP congestion control, which considers occasional packet loss.
+
+2. Bufferbloat can occur in other places such as your network interface card (NIC). Check the output of ifconfig eth0 on your VirtualBox VM. What is the (maximum) transmit queue length on the network interface reported by ifconfig? For this queue size, if you assume the queue drains at 100Mb/s, what is the maximum time a packet might wait in the queue before it leaves the NIC?
+
+  Calling the ifconfig shows txqueuelen=1000 and MTU=1500.
+  (1000 packets x 1500 bytes x 8 bits)/(100Mbps) = 0.12s
+
+3. How does the RTT reported by ping vary with the queue size? Write a symbolic equation to describe the relation between the two (ignore computation overheads in ping that might affect the final result).
+
+  RTT = Queue_Size * Packet_Delay(0.5s < 1.0s)
+
+  In other words, RTT reported by ping has a proportional
+  relationship with Queue_Size. Given a larger queue, more packets can be pushed in,
+  thus directly increasing the total RTT per Packet_Delay.
+
+4. Identify and describe two ways to mitigate the bufferbloat problem.
+
+  For one, we can decrease the maximum buffer size. Wait will be shorter as a result.
+
+  q20: Average: 0.660000
+  Standard Deviation: 0.356979
+
+  q100: Average: 1.296857
+  Standard Deviation: 0.756550
+
+  The second way we can mitigate bufferbloat is use Active Queue Management (AQM),
+  which drops packets probabilistically, so that it can avoid issues associated within
+  drop tail queues, such as bursty flows, and global synchronization between flows.
